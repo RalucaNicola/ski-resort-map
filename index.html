@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="initial-scale=1" />
+  <title>Mammoth ski resort</title>
+  <link rel="stylesheet"
+    href="https://s3-us-west-1.amazonaws.com/patterns.esri.com/files/calcite-web/1.2.5/css/calcite-web.min.css">
+  <link rel="stylesheet" href="https://jsdev.arcgis.com/4.15/esri/css/main.css" />
+  <link rel="stylesheet" href="style.css" />
+  <script src="//cdnjs.cloudflare.com/ajax/libs/seedrandom/3.0.5/seedrandom.min.js"></script>
+  <script src="./lib/anime.min.js"></script>
+
+  <!-- Template -->
+  <link rel="stylesheet" href="./../ds2020-template/main.css">
+  <link rel="stylesheet" href="./../ds2020-template/prism/prism.css" />
+
+  <script>
+    var locationPath = location.origin + location.pathname.replace(/\/[^\/]+$/, "");
+    window.dojoConfig = {
+      packages: [
+        {
+          name: "lib",
+          location: locationPath + "/lib"
+        }
+      ]
+    };
+  </script>
+  <script src="https://jsdev.arcgis.com/4.15/"></script>
+
+  <!-- <script src="../../../../../arcgis-js-api-4/test-apps/dojo-config.js"></script>
+    <script src="../../../../../arcgis-js-api-4/dojo/dojo.js"></script> -->
+  <script src="./../ds2020-template/prism/prism.js"></script>
+  <script src="index.js"></script>
+</head>
+
+<body>
+  <header class="top-nav fade-in" role="banner">
+    <div class="grid-container">
+      <div class="column-24">
+        <div class="tablet-hide">
+          <span class="header-title">Mammoth Ski Resort</span>
+        </div>
+
+        <div class="tablet-show top-nav-flex">
+          <header class="top-nav-flex-title">
+            <a href="/" class="top-nav-link">ArcGIS <span class="phone-hide">API for JavaScript</span></a>
+          </header>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div id="viewDiv">
+    <div id="menu" class="esri-widget">
+      <button id="goToPosition">Red lake</button>
+      <button id="startSnow">Let it snow, let it snow...</button>
+      <button id="flyPlane">Fly plane</button>
+      <audio id="snow-music">
+        <source src="let-it-snow.mp3" type="audio/mpeg" />
+        Your browser does not support the audio element.
+      </audio>
+    </div>
+
+    <div id="toggle-snippet" class="esri-widget esri-widget--button esri-interactive" title="Code Snippet">
+      <span class="icon-snippet"></span>
+    </div>
+    <div id="code-snippet">
+      <pre><code class="language-js">
+const skiLiftSymbol = new LineSymbol3D({
+  symbolLayers: [
+    new PathSymbol3DLayer({
+      profile: "quad",
+      material: { color: [100, 100, 100, 1] },
+      width: 25,
+      height: 5
+    })
+  ]
+});
+const lakeSymbol = new PolygonSymbol3D({
+  symbolLayers: [
+    new WaterSymbol3DLayer({
+      color: [237, 254, 255],
+      waveStrength: "moderate",
+      waterbodySize: "medium"
+    })
+  ]
+});
+      </code></pre>
+    </div>
+
+  </div>
+  </div>
+  <div class="snow">
+    <div class="i-large"></div>
+    <div class="i-medium"></div>
+    <div class="i-small"></div>
+  </div>
+  <script src="./../ds2020-template/utils/snippet.js"></script>
+</body>
+
+</html>

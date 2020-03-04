@@ -1,0 +1,103 @@
+html,
+body,
+#viewDiv {
+  padding: 0;
+  margin: 0;
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(0deg, rgba(249, 249, 249, 1) 25%, rgba(207, 235, 240, 1) 75%);
+}
+
+aside {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  max-width: 250px;
+  padding: 0.5em;
+  box-sizing: border-box;
+  overflow: auto;
+  background-color: rgba(255, 255, 255, 0.6);
+}
+
+ul {
+  list-style-type: none;
+  color: #000;
+  padding: 0;
+  padding-bottom: 30px;
+}
+
+li.selected {
+  background-color: #000;
+  color: #fff;
+}
+
+canvas {
+  filter: drop-shadow(2px 2px 5px 0 rgba(0, 0, 0, 0.1));
+}
+
+#menu {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+}
+
+@media (max-width: 600px) {
+  aside {
+    position: absolute;
+    top: 60%;
+    bottom: 0;
+    width: 100%;
+    max-width: 100%;
+  }
+}
+
+.snow {
+  pointer-events: none;
+  position: absolute;
+  top: 0;
+  height: 100%;
+  width: 100%;
+  display: none;
+}
+
+.i-large,
+.i-medium,
+.i-small {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+
+.i-large {
+  background: url("./img/snow_large.png") repeat 0px 0px;
+  animation: dropSnowFlakes 2s linear infinite;
+}
+.i-medium {
+  background: url("./img/snow_medium.png") repeat 0px 0px;
+  animation: dropSnowFlakes 12s linear infinite;
+}
+.i-small {
+  background: url("./img/snow_small.png") repeat 0px 0px;
+  animation: dropSnowFlakes 27s linear infinite;
+}
+
+video {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 1px;
+  height: 1px;
+  /* display: hidden; */
+}
+
+@keyframes dropSnowFlakes {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 0 413px;
+  }
+}
