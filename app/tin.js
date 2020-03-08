@@ -2,7 +2,6 @@ define([
   "app/config",
   "app/utils",
   "esri/layers/ElevationLayer",
-  "esri/layers/BaseElevationLayer",
   "esri/geometry/Multipoint",
   "esri/geometry/support/MeshMaterialMetallicRoughness",
   "esri/geometry/Mesh",
@@ -10,14 +9,18 @@ define([
   "esri/geometry/SpatialReference",
   "esri/Color",
   "lib/Delaunator"
-], function (config, utils, ElevationLayer, BaseElevationLayer,
+], function (
+  config,
+  utils,
+  ElevationLayer,
   Multipoint,
   MeshMaterialMetallicRoughness,
   Mesh,
   MeshComponent,
   SpatialReference,
   Color,
-  Delaunator) {
+  Delaunator
+) {
 
   const xmin = config.extent.xmin;
   const ymin = config.extent.ymin;
@@ -31,36 +34,9 @@ define([
 
   let vertices = utils.getRandomPointsAsFlatVertexArray(xmin, xmax, ymin, ymax, 200);
 
-  // // display the random generated points - only for debugging
-  // const graphics = utils.displayGraphicsFromFlatVertexArray(vertices);
-  // view.graphics.addMany(graphics);
-
   const elevationLayer = new ElevationLayer({
     url: "https://elevation3d.arcgis.com/arcgis/rest/services/WorldElevation3D/Terrain3D/ImageServer"
   });
-
-  const ExaggeratedElevationLayer = BaseElevationLayer.createSubclass({
-    properties: {
-      exaggeration: config.terrain.exaggerationFactor
-    },
-    load: function () {
-      this._elevation = elevationLayer;
-      this.addResolvingPromise(this._elevation.load());
-    },
-    fetchTile: function (level, row, col, options) {
-      return this._elevation.fetchTile(level, row, col, options).then(
-        function (data) {
-          const exaggeration = this.exaggeration;
-          for (var i = 0; i < data.values.length; i++) {
-            data.values[i] = data.values[i] * exaggeration;
-          }
-          return data;
-        }.bind(this)
-      );
-    }
-  });
-
-  exaggeratedElevationLayer = new ExaggeratedElevationLayer();
 
   // add the boundary points
   vertices.push(xmin, ymin, xmin, ymax, xmax, ymin, xmax, ymax);
@@ -93,16 +69,10 @@ define([
     }
     const borderVerticesFlatArray = [].concat.apply([], borderVertices);
 
-    // const debugLayer = new GraphicsLayer({
-    //   title: "Points"
-    // });
-    // map.add(debugLayer);
-    // const graphics = utils.displayGraphicsFromFlatVertexArray(borderVerticesFlatArray);
-    // debugLayer.addMany(graphics);
     return borderVerticesFlatArray;
   }
 
-  const borderVerts = generateBorderVertices(10);
+  const borderVerts = generateBorderVertices(15);
 
   vertices = vertices.concat(borderVerts);
   vertices.push(xmin - dif, ymin - dif, xmin - dif, ymax + dif, xmax + dif, ymin - dif, xmax + dif, ymax + dif);
