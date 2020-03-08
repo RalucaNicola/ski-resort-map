@@ -6,17 +6,15 @@ body,
   height: 100%;
   width: 100%;
   background: linear-gradient(0deg, rgba(249, 249, 249, 1) 25%, rgba(207, 235, 240, 1) 75%);
+  font-family: "Avenir Next W00","Helvetica Neue",Helvetica,Arial,sans-serif;
 }
 
-aside {
+#menu {
   position: absolute;
-  top: 0;
-  left: 0;
-  bottom: 0;
+  top: 10px;
+  right: 10px;
   max-width: 250px;
   padding: 0.5em;
-  box-sizing: border-box;
-  overflow: auto;
   background-color: rgba(255, 255, 255, 0.6);
 }
 
@@ -34,22 +32,6 @@ li.selected {
 
 canvas {
   filter: drop-shadow(2px 2px 5px 0 rgba(0, 0, 0, 0.1));
-}
-
-#menu {
-  position: absolute;
-  bottom: 10px;
-  left: 10px;
-}
-
-@media (max-width: 600px) {
-  aside {
-    position: absolute;
-    top: 60%;
-    bottom: 0;
-    width: 100%;
-    max-width: 100%;
-  }
 }
 
 .snow {

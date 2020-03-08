@@ -4,7 +4,7 @@
 require([
   "esri/identity/OAuthInfo",
   "esri/identity/IdentityManager",
-  "esri/WebScene",
+  "esri/Map",
   "esri/Color",
   "esri/views/SceneView",
   "esri/request",
@@ -34,10 +34,10 @@ require([
   "lib/utils",
   "lib/font",
   "lib/fontmesh"
-], function(
+], function (
   OAuthInfo,
   esriId,
-  WebScene,
+  Map,
   Color,
   SceneView,
   esriRequest,
@@ -68,7 +68,7 @@ require([
   font,
   fontmesh
 ) {
-  var info = new OAuthInfo({
+  const info = new OAuthInfo({
     // Swap this ID out with registered application ID
     appId: "iLylggsE3toQeCGV",
     // Uncomment the next line and update if using your own portal
@@ -80,18 +80,18 @@ require([
 
   esriId.registerOAuthInfos([info]);
 
-  // create elevation layer for sampling height info
-  const elevationLayer = new ElevationLayer({
-    // url: "https://tiles.arcgis.com/tiles/V6ZHFr6zdgNZuVG0/arcgis/rest/services/MammothUncoveredDTM/ImageServer"
-    url: "https://elevation3d.arcgis.com/arcgis/rest/services/WorldElevation3D/Terrain3D/ImageServer"
-  });
-  //esriConfig.portalUrl = "https://jsapi.maps.arcgis.com/";
-
-  var map = new WebScene({
+  const map = new Map({
     ground: {
       opacity: 0
     }
   });
+  // create elevation layer for sampling height info
+  const elevationLayer = new ElevationLayer({
+    url: "https://elevation3d.arcgis.com/arcgis/rest/services/WorldElevation3D/Terrain3D/ImageServer"
+  });
+  //esriConfig.portalUrl = "https://jsapi.maps.arcgis.com/";
+
+
 
   const xmin = -13253776.1039;
   const xmax = -13245135.78;
@@ -112,7 +112,7 @@ require([
     // The load() method is called when the layer is added to the map
     // prior to it being rendered in the view.
 
-    load: function() {
+    load: function () {
       this._elevation = elevationLayer;
 
       // wait for the elevation layer to load before resolving load()
@@ -120,11 +120,11 @@ require([
     },
 
     // Fetches the tile(s) visible in the view
-    fetchTile: function(level, row, col, options) {
+    fetchTile: function (level, row, col, options) {
       // calls fetchTile() on the elevationlayer for the tiles
       // visible in the view
       return this._elevation.fetchTile(level, row, col, options).then(
-        function(data) {
+        function (data) {
           var exaggeration = this.exaggeration;
 
           // `data` is an object that contains the
@@ -156,10 +156,10 @@ require([
     spatialReference: SpatialReference.WebMercator
   };
 
-  map.when(function() {
+  map.when(function () {
     map.ground.layers = [new ExaggeratedElevationLayer()];
     var trees = map.allLayers.getItemAt(3);
-    view.whenLayerView(trees).then(function(lyrView) {
+    view.whenLayerView(trees).then(function (lyrView) {
       lyrView.maximumNumberOfFeatures = 100000;
     });
 
@@ -326,11 +326,11 @@ require([
       returnZ: true,
       returnGeometry: true
     })
-    .then(function(results) {
+    .then(function (results) {
       console.log("Feature query: ", results);
-      results.features.forEach(function(feature) {
-        feature.geometry.paths.forEach(function(path) {
-          path.forEach(function(point) {
+      results.features.forEach(function (feature) {
+        feature.geometry.paths.forEach(function (path) {
+          path.forEach(function (point) {
             const pillarGeometry = new Point({
               x: point[0],
               y: point[1],
@@ -683,6 +683,8 @@ require([
 
   map.add(treesLayer);
 
+  lineSize = 1;
+
   const skiTrailsLayer = new FeatureLayer({
     url: "https://services.arcgis.com/V6ZHFr6zdgNZuVG0/arcgis/rest/services/ski_trails_mammoth/FeatureServer",
     elevationInfo: {
@@ -698,7 +700,7 @@ require([
           {
             type: "line",
             material: { color: [235, 64, 52, 1] },
-            size: 2
+            size: lineSize
           },
           {
             type: "line",
@@ -709,6 +711,44 @@ require([
       },
       uniqueValueInfos: [
         {
+          value: "5",
+          symbol: {
+            type: "line-3d",
+            symbolLayers: [
+              {
+                type: "line",
+                material: { color: [255, 143, 46, 1] },
+                size: lineSize
+              },
+              {
+                type: "line",
+                material: { color: [255, 143, 46, 0.2] },
+                size: 6
+              }
+            ]
+          },
+          label: "Something else"
+        },
+        {
+          value: "4",
+          symbol: {
+            type: "line-3d",
+            symbolLayers: [
+              {
+                type: "line",
+                material: { color: [100, 100, 100, 1] },
+                size: lineSize
+              },
+              {
+                type: "line",
+                material: { color: [100, 100, 100, 0.2] },
+                size: 6
+              }
+            ]
+          },
+          label: "Very difficult"
+        },
+        {
           value: "3",
           symbol: {
             type: "line-3d",
@@ -716,7 +756,7 @@ require([
               {
                 type: "line",
                 material: { color: [235, 64, 52, 1] },
-                size: 1
+                size: lineSize
               },
               {
                 type: "line",
@@ -735,7 +775,7 @@ require([
               {
                 type: "line",
                 material: { color: [52, 134, 209, 1] },
-                size: 1
+                size: lineSize
               },
               {
                 type: "line",
@@ -754,7 +794,7 @@ require([
               {
                 type: "line",
                 material: { color: [141, 199, 97, 1] },
-                size: 1
+                size: lineSize
               },
               {
                 type: "line",
@@ -770,14 +810,6 @@ require([
   });
   map.add(skiTrailsLayer);
 
-  document.getElementById("goToPosition").addEventListener("click", function() {
-    view.goTo({
-      position: [-119.06279155, 37.6426213, 5931.3747],
-      heading: 115.34,
-      tilt: 79.19
-    });
-    view.environment.lighting.date = new Date("Sun Mar 15 2020 17:56:15 GMT+0100 (Central European Standard Time)");
-  });
 
   var view = new SceneView({
     container: "viewDiv",
@@ -794,11 +826,7 @@ require([
       starsEnabled: false,
       atmosphereEnabled: false
     },
-    camera: {
-      position: [-118.95577139, 37.68227904, 7980.9363],
-      heading: 222.11,
-      tilt: 72.65
-    },
+    camera: { "position": { "spatialReference": { "latestWkid": 3857, "wkid": 102100 }, "x": -13239947.23509459, "y": 4537716.550325148, "z": 9144.733118887329 }, "heading": 222.1099999996886, "tilt": 72.64999999988527 },
     spatialReference: SpatialReference.WebMercator,
     viewingMode: "local",
     qualityProfile: "high",
@@ -864,7 +892,7 @@ require([
   const triangles = delaunay.triangles;
 
   enhanceVerticesWithZValues(vertices, exaggerationFactor)
-    .then(function(verticesZ) {
+    .then(function (verticesZ) {
       const length = verticesZ.length;
 
       verticesZ[length - 4][2] = 4000;
@@ -872,7 +900,7 @@ require([
       verticesZ[length - 2][2] = 4000;
       verticesZ[length - 1][2] = 4000;
 
-      const color = verticesZ.map(function(vertex) {
+      const color = verticesZ.map(function (vertex) {
         return getColorFromHeight(vertex[2]);
       });
 
@@ -925,12 +953,12 @@ require([
           num: 2000,
           start: index
         })
-        .then(function(result) {
+        .then(function (result) {
           //console.log("Trees", result);
 
           const features = result.features;
 
-          features.forEach(function(feature) {
+          features.forEach(function (feature) {
             // const densifiedGeometry = geometryEngine.densify(feature.geometry, 0.001);
             // console.log(densifiedGeometry.paths[0], "\n ------");
             const zGeometry = sampler.queryElevation(feature.geometry);
@@ -941,7 +969,7 @@ require([
           });
           layer
             .applyEdits({ updateFeatures: features })
-            .then(function(results) {
+            .then(function (results) {
               console.log(results);
               setZValues(layer, sampler, index + 2000);
             })
@@ -961,8 +989,8 @@ require([
 
     return elevationLayer
       .queryElevation(multipoint, { demResolution: "finest-contiguous" })
-      .then(function(result) {
-        return result.geometry.points.map(function(p) {
+      .then(function (result) {
+        return result.geometry.points.map(function (p) {
           const z = p[2] * exaggerationFactor;
           if (minHeight > z) {
             minHeight = z;
@@ -1043,7 +1071,7 @@ require([
     view: view
   });
 
-  view.ui.add(featureEditor, "top-right");
+  // view.ui.add(featureEditor, "top-right");
 
   var graphic = null;
 
@@ -1096,16 +1124,16 @@ require([
     .catch(err => {
       console.error(err);
     });
-  const snowContainer = document.getElementsByClassName("snow")[0];
-  const musicController = document.getElementById("snow-music");
+
   let itSnows = false;
-  document.getElementById("startSnow").addEventListener("click", function() {
+  document.getElementById("snow");
+  document.getElementById("startSnow").addEventListener("click", function () {
     snowContainer.style.display = itSnows ? "none" : "inherit";
-    if (itSnows) {
-      musicController.pause();
-    } else {
-      musicController.play();
-    }
+    // if (itSnows) {
+    //   musicController.pause();
+    // } else {
+    //   musicController.play();
+    // }
     itSnows = !itSnows;
   });
 
@@ -1139,7 +1167,8 @@ require([
       y: center.y,
       z: 7000,
       spatialReference: SpatialReference.WebMercator
-    })
+    }),
+    visible: false,
   });
 
   planeGraphicsLayer.add(planeGraphic);
@@ -1150,16 +1179,16 @@ require([
     targets: planeGeometry,
     x: {
       value: "+=" + radius,
-      easing: function(el, i, total) {
-       return function(t) {
+      easing: function (el, i, total) {
+        return function (t) {
           return Math.sin(t * 2 * Math.PI);
         }
       }
     },
     y: {
       value: "+=" + radius,
-      easing: function(el, i, total) {
-       return function(t) {
+      easing: function (el, i, total) {
+        return function (t) {
           return Math.cos(t * 2 * Math.PI);
         }
       }
@@ -1167,7 +1196,7 @@ require([
     duration,
     autoplay: false,
     loop: true,
-    update: function() {
+    update: function () {
       planeGraphic.geometry = planeGeometry.clone();
     }
   });
@@ -1179,7 +1208,7 @@ require([
     easing: "linear",
     autoplay: false,
     loop: true,
-    update: function() {
+    update: function () {
       planeGraphic.symbol = planeGraphic.symbol.clone();
       planeGraphic.symbol.symbolLayers = [planeSymbolLayer];
     }
@@ -1187,65 +1216,69 @@ require([
 
   let planeFlying = false;
 
-  document.getElementById("flyPlane").addEventListener("click", function() {
+  document.getElementById("flyPlane").addEventListener("click", function () {
+
+    view.goTo({ "position": { "spatialReference": { "latestWkid": 3857, "wkid": 102100 }, "x": -13242114.57981226, "y": 4536875.754788172, "z": 8172.549514131692 }, "heading": 222.13771837133106, "tilt": 74.79683387995716 });
+
     if (planeFlying) {
       positionAnimation.pause();
       headingAnimation.pause();
     } else {
+      planeGraphic.visible = true;
       positionAnimation.play();
       headingAnimation.play();
     }
     planeFlying = !planeFlying;
   });
 
-  const symbol = {
-    type: "mesh-3d",
-    symbolLayers: [
-      {
-        type: "fill",
-        material: { color: "white" }
-      }
-    ]
-  };
+  // const symbol = {
+  //   type: "mesh-3d",
+  //   symbolLayers: [
+  //     {
+  //       type: "fill",
+  //       material: { color: "white" }
+  //     }
+  //   ]
+  // };
 
-  const videoLocation = new Point({
-    x: -119.031963,
-    y: 37.629232,
-    z: 6650,
-    spatialReference: { wkid: 4326 }
-  });
+  // const videoLocation = new Point({
+  //   x: -119.031963,
+  //   y: 37.629232,
+  //   z: 6650,
+  //   spatialReference: { wkid: 4326 }
+  // });
 
-  const movie = document.createElement("video");
-  movie.src = "./assets/arno.mp4";
-  //movie.crossOrigin = "anonymous";
-  movie.autoplay = true;
-  movie.loop = true;
-  movie.muted = true;
-  // movie.preload = "auto";
-  document.body.appendChild(movie);
+  // const movie = document.createElement("video");
+  // movie.src = "./assets/arno.mp4";
+  // //movie.crossOrigin = "anonymous";
+  // movie.autoplay = true;
+  // movie.loop = true;
+  // movie.muted = true;
+  // // movie.preload = "auto";
+  // document.body.appendChild(movie);
 
-  const geometryScreen = Mesh.createBox(videoLocation, {
-    size: {
-      height: 90,
-      width: 90,
-      depth: 20
-    },
-    imageFace: "south",
-    material: {
-      colorTexture: {
-        data: movie
-      }
-    }
-  });
-  geometryScreen.offset(0, 0, 60);
-  geometryScreen.rotate(0, 0, 330);
+  // const geometryScreen = Mesh.createBox(videoLocation, {
+  //   size: {
+  //     height: 90,
+  //     width: 90,
+  //     depth: 20
+  //   },
+  //   imageFace: "south",
+  //   material: {
+  //     colorTexture: {
+  //       data: movie
+  //     }
+  //   }
+  // });
+  // geometryScreen.offset(0, 0, 60);
+  // geometryScreen.rotate(0, 0, 330);
 
-  const geometryTrunk = Mesh.createBox(videoLocation, {
-    size: { width: 10, depth: 10, height: 60 },
-    material: { color: "white" }
-  });
+  // const geometryTrunk = Mesh.createBox(videoLocation, {
+  //   size: { width: 10, depth: 10, height: 60 },
+  //   material: { color: "white" }
+  // });
 
-  const geometry = meshUtils.merge([geometryTrunk, geometryScreen]);
+  // const geometry = meshUtils.merge([geometryTrunk, geometryScreen]);
 
-  view.graphics.add(new Graphic(geometry, symbol));
+  // view.graphics.add(new Graphic(geometry, symbol));
 });
