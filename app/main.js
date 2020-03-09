@@ -183,8 +183,10 @@ define([
 
       let itSnows = false;
       const snowContainer = document.getElementsByClassName("snow")[0];
-      document.getElementById("startSnow").addEventListener("click", function () {
+      const snowButton = document.getElementById("startSnow");
+      snowButton.addEventListener("click", function () {
         snowContainer.style.display = itSnows ? "none" : "inherit";
+        snowButton.innerHTML = itSnows ? "make it snow" : "stop the snow";
         itSnows = !itSnows;
       });
 
@@ -265,16 +267,19 @@ define([
       });
 
       let planeFlying = false;
+      const flyButton = document.getElementById("flyPlane");
 
-      document.getElementById("flyPlane").addEventListener("click", function () {
+      flyButton.addEventListener("click", function () {
 
         if (planeFlying) {
           positionAnimation.pause();
           headingAnimation.pause();
+          flyButton.innerHTML = "fly the plane";
         } else {
           planeGraphic.visible = true;
           positionAnimation.play();
           headingAnimation.play();
+          flyButton.innerHTML = "stop the plane";
         }
         planeFlying = !planeFlying;
       });
