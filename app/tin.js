@@ -8,7 +8,7 @@ define([
   "esri/geometry/support/MeshComponent",
   "esri/geometry/SpatialReference",
   "esri/Color",
-  "lib/Delaunator"
+  "lib/delaunator"
 ], function (
   config,
   utils,
