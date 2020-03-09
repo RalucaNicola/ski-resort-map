@@ -28,9 +28,6 @@
     };
   </script>
   <script src="https://js.arcgis.com/next/"></script>
-
-  <!-- <script src="../../../../../arcgis-js-api-4/test-apps/dojo-config.js"></script>
-    <script src="../../../../../arcgis-js-api-4/dojo/dojo.js"></script> -->
   <script>
     require([
       'app/main'
@@ -43,21 +40,25 @@
 <body>
 
   <div id="viewDiv">
-    <div id="menu" class="esri-widget">
-      <h1>Mammoth ski resort map</h1>
-      <p>This is a demo map application of the Mammoth ski resort.
-        This app is just for demo purposes and shouldn't
-        be used for orientation.
-      </p>
-      <button id="flyPlane">Fly plane</button>
-      <button id="startSnow">Let it snow...</button>
-    </div>
-
   </div>
   <div class="snow">
     <div class="i-large"></div>
     <div class="i-medium"></div>
     <div class="i-small"></div>
+  </div>
+  <div id="menu" class="esri-widget">
+    <h3>Mammoth ski resort map</h3>
+    <p>This is an interactive map of the Mammoth ski resort, built for demo
+      purposes only. You can try to <button id="flyPlane">fly the plane</button> or
+      <button id="startSnow">let it snow</button>.
+    </p>
+    <p class="credits">Application built with <a href="https://developers.arcgis.com/javascript">ArcGIS for JavaScript</a>.
+      Credits to Philip Mielke for the trees, ski trail and ski lifts data. Inspired by the
+      <a href="https://www.mammothmountain.com/winter/mountain-information/lifts-trails/trail-map">official Mammoth ski resort map</a>.
+      3D models from Google Poly: <a href="https://poly.google.com/view/6ufSK2nQBc6">Chalet</a>,
+      <a href="https://poly.google.com/view/7cvx6ex-xfL">Small airplane</a> and
+      <a href="https://poly.google.com/view/6IOZN0Q6lHt">skier</a>.
+    </p>
   </div>
 </body>
 

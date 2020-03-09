@@ -17,4 +17,4 @@ define([
       spatialReference: SpatialReference.WebMercator
     }
   }
-})
+});

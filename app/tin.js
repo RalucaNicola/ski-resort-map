@@ -102,7 +102,7 @@ define([
             faces: triangles,
             shading: "flat",
             material: new MeshMaterialMetallicRoughness({
-              metallic: 0.4,
+              metallic: 0.5,
               roughness: 0.8
             })
           });
@@ -153,7 +153,7 @@ define([
 
   function getColorFromHeight(height) {
     const startColor = new Color("#bfeaff");
-    const endColor = new Color("#e8f1ff");
+    const endColor = new Color("#dbe9ff");
     let color = Color.blendColors(startColor, endColor, (height - minHeight) / (maxHeight - minHeight));
     return [color.r, color.g, color.b, 255];
   }

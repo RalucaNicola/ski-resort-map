@@ -1,69 +1,32 @@
 define([
-  "esri/identity/OAuthInfo",
-  "esri/identity/IdentityManager",
   "app/config",
-
+  "app/renderers",
   "esri/Map",
   "esri/geometry/SpatialReference",
   "app/tin",
-
   "esri/views/SceneView",
-
   "esri/Graphic",
-  "esri/geometry/Polygon",
   "esri/geometry/Point",
-
   "esri/geometry/Extent",
-  "esri/geometry/Polyline",
-  "esri/geometry/support/meshUtils",
-  "esri/core/promiseUtils",
   "esri/layers/GraphicsLayer",
   "esri/layers/FeatureLayer",
-  "esri/layers/ElevationLayer",
-  "esri/config",
-  "esri/widgets/Sketch/SketchViewModel",
-  "esri/widgets/Editor",
-  "esri/layers/BaseElevationLayer",
-  "esri/geometry/geometryEngine",
-  "esri/geometry/support/meshUtils",
-  "esri/layers/support/LabelClass"
+  "esri/core/watchUtils"
 ], function (
-  OAuthInfo,
-  esriId,
   config,
-
+  renderers,
   Map,
   SpatialReference,
   tin,
   SceneView,
-
   Graphic,
-  Polygon,
   Point,
-
   Extent,
-  Polyline,
-  meshUtils,
-  promiseUtils,
   GraphicsLayer,
   FeatureLayer,
-  ElevationLayer,
-  esriConfig,
-  SketchViewModel,
-  Editor,
-  BaseElevationLayer,
-  geometryEngine,
-  meshUtils,
-  LabelClass) {
+  watchUtils
+  ) {
   return {
     init: function () {
-      const info = new OAuthInfo({
-        appId: config.appId,
-        portalUrl: config.portalUrl,
-        popup: false
-      });
-
-      esriId.registerOAuthInfos([info]);
 
       const map = new Map({
         ground: {
@@ -101,6 +64,11 @@ define([
         qualityProfile: "high",
         clippingArea: config.extent
       });
+      view.when(function() {
+        watchUtils.whenFalseOnce(view, "updating", function() {
+          document.getElementsByTagName("canvas")[0].style.filter = "opacity(100%)";
+        });
+      });
 
       tin.createGeometry()
         .then(function (mesh) {
@@ -113,65 +81,23 @@ define([
           });
 
           view.graphics.add(graphic);
-        })
+        });
 
+      const pointsOfInterestLayer = new FeatureLayer({
+        url: "https://services.arcgis.com/V6ZHFr6zdgNZuVG0/arcgis/rest/services/interest_points_mammoth/FeatureServer",
+        screenSizePerspectiveEnabled: false,
+        renderer: renderers.getPOIRenderer(),
+        labelingInfo: renderers.getPOILabeling()
+      });
+
+      map.add(pointsOfInterestLayer);
 
       const waterLayer = new FeatureLayer({
         url: "https://services.arcgis.com/V6ZHFr6zdgNZuVG0/arcgis/rest/services/mammoth_lakes/FeatureServer",
-        renderer: {
-          type: "simple",
-          symbol: {
-            type: "polygon-3d",
-            symbolLayers: [
-              {
-                type: "water",
-                color: [237, 254, 255],
-                waveStrength: "moderate",
-                waterbodySize: "large"
-              }
-            ]
-          }
-        }
+        renderer: renderers.getWaterRenderer(),
+        labelingInfo: renderers.getWaterLabeling()
       });
       map.add(waterLayer);
-      waterLayer.labelingInfo = waterLayer.labelingInfo = [
-        new LabelClass({
-          labelExpressionInfo: { expression: "$feature.Name" },
-          labelPlacement: "above-center",
-          symbol: {
-            type: "label-3d",
-            symbolLayers: [
-              {
-                type: "text",
-                material: {
-                  color: [255, 255, 255]
-                },
-                font: {
-                  size: 11,
-                  family: "sans-serif"
-                },
-                halo: {
-                  size: 2,
-                  color: [89, 170, 186, 0.5]
-                }
-              }
-            ],
-            verticalOffset: {
-              screenLength: 20,
-              maxWorldLength: 20000,
-              minWorldLength: 50
-            },
-            callout: {
-              type: "line",
-              size: 2,
-              color: [255, 255, 255],
-              border: {
-                color: [89, 170, 186]
-              }
-            }
-          }
-        })
-      ];
 
       const skiLiftsLayer = new FeatureLayer({
         url: "https://services.arcgis.com/V6ZHFr6zdgNZuVG0/arcgis/rest/services/ski_lifts_Mammoth/FeatureServer/0",
@@ -180,98 +106,11 @@ define([
           mode: "absolute-height",
           offset: 25
         },
-        renderer: {
-          type: "simple",
-          symbol: {
-            type: "line-3d",
-            symbolLayers: [
-              {
-                type: "path",
-                profile: "quad",
-                material: { color: [100, 100, 100, 1] },
-                width: 25,
-                height: 5,
-                join: "miter",
-                cap: "butt",
-                anchor: "bottom",
-                profileRotation: "all"
-              }
-            ]
-          }
-        },
-        labelingInfo: [
-          new LabelClass({
-            labelExpressionInfo: { expression: `"\ue654"` },
-            labelPlacement: "above-center",
-            where: "Status = 1",
-            symbol: {
-              type: "label-3d",
-              symbolLayers: [
-                {
-                  type: "text",
-                  material: {
-                    color: [54, 173, 136, 1]
-                  },
-                  halo: {
-                    size: 3,
-                    color: [255, 255, 255, 0.8]
-                  },
-                  font: {
-                    size: 15,
-                    family: "CalciteWebCoreIcons"
-                  }
-                }
-              ]
-            }
-          }),
-          new LabelClass({
-            labelExpressionInfo: { expression: `"\ue647"` },
-            labelPlacement: "above-center",
-            where: "Status = 0",
-            symbol: {
-              type: "label-3d",
-              symbolLayers: [
-                {
-                  type: "text",
-                  material: {
-                    color: [240, 43, 86, 1]
-                  },
-                  halo: {
-                    size: 3,
-                    color: [255, 255, 255, 0.8]
-                  },
-                  font: {
-                    size: 15,
-                    family: "CalciteWebCoreIcons"
-                  }
-                }
-              ]
-            }
-          })
-        ]
+        renderer: renderers.getSkiLiftRenderer(),
+        labelingInfo: renderers.getSkiLiftLabeling()
       });
+      map.add(skiLiftsLayer);
 
-      const skiLiftPillarLayer = new GraphicsLayer({
-        elevationInfo: {
-          mode: "absolute-height",
-          offset: 26
-        }
-      });
-      map.add(skiLiftPillarLayer);
-      const pillarSymbol = {
-        type: "point-3d",
-        symbolLayers: [
-          {
-            type: "object",
-            resource: { primitive: "cylinder" },
-            material: { color: [100, 100, 100, 1] },
-            anchor: "top",
-            depth: 3,
-            height: 100,
-            width: 3
-          }
-        ]
-      };
       skiLiftsLayer
         .queryFeatures({
           where: "1=1",
@@ -279,10 +118,10 @@ define([
           returnGeometry: true
         })
         .then(function (results) {
-          console.log("Feature query: ", results);
+          const graphics = [];
           results.features.forEach(function (feature) {
             feature.geometry.paths.forEach(function (path) {
-              path.forEach(function (point) {
+              path.forEach(function (point, index) {
                 const pillarGeometry = new Point({
                   x: point[0],
                   y: point[1],
@@ -291,351 +130,40 @@ define([
                 });
                 const graphic = new Graphic({
                   geometry: pillarGeometry,
-                  symbol: pillarSymbol
+                  attributes: {
+                    ObjectId: index
+                  }
                 });
-                skiLiftPillarLayer.add(graphic);
+                graphics.push(graphic);
               });
             });
+
+            const skiLiftPillarLayer = new FeatureLayer({
+              elevationInfo: {
+                mode: "absolute-height",
+                offset: 26
+              },
+              fields: [{
+                name: "ObjectID",
+                alias: "ObjectID",
+                type: "oid"
+              }],
+              renderer: renderers.getPillarRenderer(),
+              source: graphics
+            });
+            map.add(skiLiftPillarLayer);
           });
         });
-
-      const hutSymbol = {
-        type: "point-3d",
-        symbolLayers: [
-          {
-            type: "icon",
-            resource: {
-              primitive: "square"
-            },
-            material: { color: [255, 255, 255, 0] },
-            size: 30,
-            anchor: "relative",
-            anchorPosition: {
-              x: 0,
-              y: 0
-            }
-          },
-          {
-            type: "icon",
-            resource: {
-              primitive: "square"
-            },
-            material: { color: [255, 255, 255, 0.7] },
-            size: 20,
-            anchor: "relative",
-            anchorPosition: {
-              x: 1,
-              y: 0.4
-            }
-          },
-          {
-            type: "icon",
-            resource: {
-              href: "https://static.arcgis.com/arcgis/styleItems/Icons/web/resource/Hotel.svg"
-            },
-            material: { color: [100, 100, 100] },
-            size: 15,
-            anchor: "relative",
-            anchorPosition: {
-              x: 1.2,
-              y: 0.5
-            }
-          },
-          {
-            type: "icon",
-            resource: {
-              primitive: "square"
-            },
-            material: { color: [255, 255, 255, 0.7] },
-            size: 20,
-            anchor: "relative",
-            anchorPosition: {
-              x: 0,
-              y: 0.4
-            }
-          },
-          {
-            type: "icon",
-            resource: {
-              href: "https://static.arcgis.com/arcgis/styleItems/Icons/web/resource/Restaurant.svg"
-            },
-            material: { color: [100, 100, 100] },
-            size: 15,
-            anchor: "relative",
-            anchorPosition: {
-              x: 0,
-              y: 0.5
-            }
-          },
-
-          {
-            type: "icon",
-            resource: {
-              primitive: "square"
-            },
-            material: { color: [255, 255, 255, 0.7] },
-            size: 20,
-            anchor: "relative",
-            anchorPosition: {
-              x: -1,
-              y: 0.4
-            }
-          },
-          {
-            type: "icon",
-            resource: {
-              href: "https://static.arcgis.com/arcgis/styleItems/Icons/web/resource/Hospital.svg"
-            },
-            material: { color: [230, 87, 97] },
-            size: 15,
-            anchor: "relative",
-            anchorPosition: {
-              x: -1,
-              y: 0.5
-            }
-          }
-        ],
-        verticalOffset: {
-          screenLength: 20,
-          maxWorldLength: 20000,
-          minWorldLength: 50
-        },
-        callout: {
-          type: "line",
-          size: 1,
-          color: [50, 50, 50]
-        }
-      };
-      const restaurantSymbol = {
-        type: "point-3d",
-        symbolLayers: [
-          {
-            type: "icon",
-            resource: {
-              primitive: "square"
-            },
-            material: { color: [255, 255, 255, 0] },
-            size: 30,
-            anchor: "relative",
-            anchorPosition: {
-              x: 0,
-              y: 0
-            }
-          },
-          {
-            type: "icon",
-            resource: {
-              primitive: "square"
-            },
-            material: { color: [255, 255, 255, 0.7] },
-            size: 20,
-            anchor: "relative",
-            anchorPosition: {
-              x: 0.5,
-              y: 0.4
-            }
-          },
-          {
-            type: "icon",
-            resource: {
-              href: "https://static.arcgis.com/arcgis/styleItems/Icons/web/resource/Restaurant.svg"
-            },
-            material: { color: [100, 100, 100] },
-            size: 15,
-            anchor: "relative",
-            anchorPosition: {
-              x: 0.5,
-              y: 0.5
-            }
-          },
-          {
-            type: "icon",
-            resource: {
-              primitive: "square"
-            },
-            material: { color: [255, 255, 255, 0.7] },
-            size: 20,
-            anchor: "relative",
-            anchorPosition: {
-              x: -0.5,
-              y: 0.4
-            }
-          },
-          {
-            type: "icon",
-            resource: {
-              href: "https://static.arcgis.com/arcgis/styleItems/Icons/web/resource/Hospital.svg"
-            },
-            material: { color: [230, 87, 97] },
-            size: 15,
-            anchor: "relative",
-            anchorPosition: {
-              x: -0.5,
-              y: 0.5
-            }
-          }
-        ],
-        verticalOffset: {
-          screenLength: 20,
-          maxWorldLength: 20000,
-          minWorldLength: 50
-        },
-        callout: {
-          type: "line",
-          size: 1,
-          color: [50, 50, 50]
-        }
-      };
-      const barSymbol = {
-        type: "point-3d",
-        symbolLayers: [
-          {
-            type: "icon",
-            resource: {
-              primitive: "square"
-            },
-            material: { color: [255, 255, 255, 0.7] },
-            size: 20,
-            anchor: "relative",
-            anchorPosition: {
-              x: 0,
-              y: 0.4
-            }
-          },
-          {
-            type: "icon",
-            resource: { href: "https://static.arcgis.com/arcgis/styleItems/Icons/web/resource/Coffee.svg" },
-            material: { color: [100, 100, 100] },
-            size: 15,
-            anchor: "relative",
-            anchorPosition: {
-              x: 0,
-              y: 0.5
-            }
-          }
-        ],
-        verticalOffset: {
-          screenLength: 20,
-          maxWorldLength: 20000,
-          minWorldLength: 50
-        },
-        callout: {
-          type: "line",
-          size: 1,
-          color: [50, 50, 50]
-        }
-      };
-
-      const pointsOfInterestLayer = new FeatureLayer({
-        url: "https://services.arcgis.com/V6ZHFr6zdgNZuVG0/arcgis/rest/services/interest_points_mammoth/FeatureServer",
-        screenSizePerspectiveEnabled: false,
-        renderer: {
-          type: "unique-value",
-          field: "Type",
-          defaultSymbol: {
-            type: "point-3d",
-            symbolLayers: [
-              {
-                type: "icon",
-                resource: { primitive: "circle" },
-                material: { color: [100, 100, 100, 1] },
-                size: 1
-              }
-            ],
-            verticalOffset: {
-              screenLength: 20,
-              maxWorldLength: 20000,
-              minWorldLength: 50
-            },
-            callout: {
-              type: "line",
-              size: 1,
-              color: [50, 50, 50]
-            }
-          },
-          uniqueValueInfos: [
-            {
-              value: "Hut",
-              symbol: hutSymbol,
-              label: "label for the legend"
-            },
-            {
-              value: "Restaurant",
-              symbol: restaurantSymbol,
-              label: "label for the legend"
-            },
-            {
-              value: "Bar",
-              symbol: barSymbol
-            }
-          ]
-        },
-        labelingInfo: [
-          new LabelClass({
-            labelExpressionInfo: { expression: "$feature.Name" },
-            symbol: {
-              type: "label-3d",
-              symbolLayers: [
-                {
-                  type: "text",
-                  material: {
-                    color: [50, 50, 50]
-                  },
-                  font: {
-                    size: 10,
-                    family: "sans-serif"
-                  },
-                  halo: {
-                    size: 2,
-                    color: [255, 255, 255, 0.7]
-                  }
-                }
-              ]
-            }
-          })
-        ]
-      });
-
-      map.add(pointsOfInterestLayer);
 
       const treesLayer = new FeatureLayer({
         url: "https://services.arcgis.com/V6ZHFr6zdgNZuVG0/arcgis/rest/services/trees_mammoth/FeatureServer",
         elevationInfo: {
           mode: "absolute-height"
         },
-        renderer: {
-          type: "simple",
-          symbol: {
-            type: "point-3d",
-            symbolLayers: [
-              {
-                type: "object",
-                resource: { primitive: "cone" },
-                material: { color: "#4BB5BF" },
-                depth: 15,
-                height: 20,
-                width: 5
-              }
-            ]
-          },
-          visualVariables: [
-            {
-              type: "size",
-              field: "HEIGHT",
-              axis: "height"
-            },
-            {
-              type: "rotation",
-              field: "Rotate",
-              rotationType: "geographic"
-            }
-          ]
-        }
+        renderer: renderers.getTreesRenderer()
       });
 
       map.add(treesLayer);
-
-      lineSize = 1;
 
       const skiTrailsLayer = new FeatureLayer({
         url: "https://services.arcgis.com/V6ZHFr6zdgNZuVG0/arcgis/rest/services/ski_trails_mammoth/FeatureServer",
@@ -643,187 +171,18 @@ define([
           mode: "absolute-height",
           offset: 5
         },
-        renderer: {
-          type: "unique-value",
-          field: "Type",
-          defaultSymbol: {
-            type: "line-3d",
-            symbolLayers: [
-              {
-                type: "line",
-                material: { color: [235, 64, 52, 1] },
-                size: lineSize
-              },
-              {
-                type: "line",
-                material: { color: [235, 64, 52, 0.2] },
-                size: 6
-              }
-            ]
-          },
-          uniqueValueInfos: [
-            {
-              value: "5",
-              symbol: {
-                type: "line-3d",
-                symbolLayers: [
-                  {
-                    type: "line",
-                    material: { color: [255, 143, 46, 1] },
-                    size: lineSize
-                  },
-                  {
-                    type: "line",
-                    material: { color: [255, 143, 46, 0.2] },
-                    size: 6
-                  }
-                ]
-              },
-              label: "Something else"
-            },
-            {
-              value: "4",
-              symbol: {
-                type: "line-3d",
-                symbolLayers: [
-                  {
-                    type: "line",
-                    material: { color: [100, 100, 100, 1] },
-                    size: lineSize
-                  },
-                  {
-                    type: "line",
-                    material: { color: [100, 100, 100, 0.2] },
-                    size: 6
-                  }
-                ]
-              },
-              label: "Very difficult"
-            },
-            {
-              value: "3",
-              symbol: {
-                type: "line-3d",
-                symbolLayers: [
-                  {
-                    type: "line",
-                    material: { color: [235, 64, 52, 1] },
-                    size: lineSize
-                  },
-                  {
-                    type: "line",
-                    material: { color: [235, 64, 52, 0.2] },
-                    size: 6
-                  }
-                ]
-              },
-              label: "Difficult"
-            },
-            {
-              value: "2",
-              symbol: {
-                type: "line-3d",
-                symbolLayers: [
-                  {
-                    type: "line",
-                    material: { color: [52, 134, 209, 1] },
-                    size: lineSize
-                  },
-                  {
-                    type: "line",
-                    material: { color: [52, 134, 209, 0.2] },
-                    size: 6
-                  }
-                ]
-              },
-              label: "Medium"
-            },
-            {
-              value: "1",
-              symbol: {
-                type: "line-3d",
-                symbolLayers: [
-                  {
-                    type: "line",
-                    material: { color: [141, 199, 97, 1] },
-                    size: lineSize
-                  },
-                  {
-                    type: "line",
-                    material: { color: [141, 199, 97, 0.2] },
-                    size: 6
-                  }
-                ]
-              },
-              label: "Easy"
-            }
-          ]
-        }
+        renderer: renderers.getSkiTrailsRenderer()
       });
       map.add(skiTrailsLayer);
 
-      window.view = view;
-
-      map.add(skiLiftsLayer);
-
       const modelsLayer = new FeatureLayer({
         url: "https://services.arcgis.com/V6ZHFr6zdgNZuVG0/arcgis/rest/services/3d_models_mammoth/FeatureServer",
-        renderer: {
-          type: "unique-value",
-          field: "name",
-          uniqueValueInfos: [
-            {
-              value: "skier",
-              symbol: {
-                type: "point-3d",
-                symbolLayers: [
-                  {
-                    type: "object",
-                    resource: { href: "./assets/skier/model.gltf" },
-                    tilt: 60
-                  }
-                ]
-              },
-              label: "label for the legend"
-            },
-            {
-              value: "chalet",
-              symbol: {
-                type: "point-3d",
-                symbolLayers: [
-                  {
-                    type: "object",
-                    resource: { href: "./assets/chalet/Chalet.gltf" },
-                    height: 200,
-                    heading: 0
-                    // material: {
-                    //   color: [155, 155, 155]
-                    // }
-                  }
-                ]
-              },
-              label: "label for the legend"
-            }
-          ],
-          visualVariables: [
-            {
-              type: "size",
-              field: "Model_size",
-              axis: "height",
-              valueUnit: "meters"
-            },
-            {
-              type: "rotation",
-              field: "Rotation",
-              rotationType: "geographic"
-            }
-          ]
-        }
+        renderer: renderers.getModelsRenderer()
       });
       map.add(modelsLayer);
 
       let itSnows = false;
-      const snowContainer = document.getElementById("snow");
+      const snowContainer = document.getElementsByClassName("snow")[0];
       document.getElementById("startSnow").addEventListener("click", function () {
         snowContainer.style.display = itSnows ? "none" : "inherit";
         itSnows = !itSnows;
@@ -838,8 +197,8 @@ define([
         }
       });
       map.add(planeGraphicsLayer);
-      var radius = 3000;
-      var duration = 20000;
+      const radius = 3000;
+      const duration = 20000;
       const planeGraphic = new Graphic({
         symbol: {
           type: "point-3d",
@@ -859,14 +218,13 @@ define([
           y: center.y,
           z: 7000,
           spatialReference: SpatialReference.WebMercator
-        }),
-        visible: false,
+        })
       });
 
       planeGraphicsLayer.add(planeGraphic);
 
-      var planeGeometry = planeGraphic.geometry;
-      var planeSymbolLayer = planeGraphic.symbol.symbolLayers.getItemAt(0);
+      const planeGeometry = planeGraphic.geometry;
+      const planeSymbolLayer = planeGraphic.symbol.symbolLayers.getItemAt(0);
       const positionAnimation = anime({
         targets: planeGeometry,
         x: {
@@ -910,8 +268,6 @@ define([
 
       document.getElementById("flyPlane").addEventListener("click", function () {
 
-        view.goTo({ "position": { "spatialReference": { "latestWkid": 3857, "wkid": 102100 }, "x": -13242114.57981226, "y": 4536875.754788172, "z": 8172.549514131692 }, "heading": 222.13771837133106, "tilt": 74.79683387995716 });
-
         if (planeFlying) {
           positionAnimation.pause();
           headingAnimation.pause();
@@ -922,57 +278,6 @@ define([
         }
         planeFlying = !planeFlying;
       });
-
-      // const symbol = {
-      //   type: "mesh-3d",
-      //   symbolLayers: [
-      //     {
-      //       type: "fill",
-      //       material: { color: "white" }
-      //     }
-      //   ]
-      // };
-
-      // const videoLocation = new Point({
-      //   x: -119.031963,
-      //   y: 37.629232,
-      //   z: 6650,
-      //   spatialReference: { wkid: 4326 }
-      // });
-
-      // const movie = document.createElement("video");
-      // movie.src = "./assets/arno.mp4";
-      // //movie.crossOrigin = "anonymous";
-      // movie.autoplay = true;
-      // movie.loop = true;
-      // movie.muted = true;
-      // // movie.preload = "auto";
-      // document.body.appendChild(movie);
-
-      // const geometryScreen = Mesh.createBox(videoLocation, {
-      //   size: {
-      //     height: 90,
-      //     width: 90,
-      //     depth: 20
-      //   },
-      //   imageFace: "south",
-      //   material: {
-      //     colorTexture: {
-      //       data: movie
-      //     }
-      //   }
-      // });
-      // geometryScreen.offset(0, 0, 60);
-      // geometryScreen.rotate(0, 0, 330);
-
-      // const geometryTrunk = Mesh.createBox(videoLocation, {
-      //   size: { width: 10, depth: 10, height: 60 },
-      //   material: { color: "white" }
-      // });
-
-      // const geometry = meshUtils.merge([geometryTrunk, geometryScreen]);
-
-      // view.graphics.add(new Graphic(geometry, symbol));
     }
   }
 })
