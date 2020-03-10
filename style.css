@@ -40,7 +40,7 @@ button:hover {
 
 canvas {
   filter: opacity(0);
-  transition: filter 0.6s;
+  transition: filter 1s;
 }
 
 .snow {
