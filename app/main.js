@@ -67,6 +67,7 @@ define([
       view.when(function() {
         watchUtils.whenFalseOnce(view, "updating", function() {
           document.getElementsByTagName("canvas")[0].style.filter = "opacity(100%)";
+          document.getElementById("loader").style.display = "none";
         });
       });
 

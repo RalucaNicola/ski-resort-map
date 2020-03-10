@@ -52,6 +52,18 @@ canvas {
   display: none;
 }
 
+#loader {
+  position: absolute;
+  top: 50%;
+  margin-top: -75px;
+  text-align: center;
+  width: 100%;
+}
+
+#loader>img {
+  height: 150px;
+}
+
 .i-large,
 .i-medium,
 .i-small {
