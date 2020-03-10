@@ -64,12 +64,6 @@ define([
         qualityProfile: "high",
         clippingArea: config.extent
       });
-      view.when(function() {
-        watchUtils.whenFalseOnce(view, "updating", function() {
-          document.getElementsByTagName("canvas")[0].style.filter = "opacity(100%)";
-          document.getElementById("loader").style.display = "none";
-        });
-      });
 
       tin.createGeometry()
         .then(function (mesh) {
@@ -82,6 +76,13 @@ define([
           });
 
           view.graphics.add(graphic);
+
+          view.when(function() {
+            watchUtils.whenFalseOnce(view, "updating", function() {
+                document.getElementsByTagName("canvas")[0].style.filter = "opacity(1)";
+                document.getElementById("loader").style.display = "none";
+            });
+          });
         });
 
       const pointsOfInterestLayer = new FeatureLayer({
