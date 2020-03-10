@@ -61,8 +61,8 @@ canvas {
 }
 
 #loader>img {
-  height: 100px;
-  filter: drop-shadow(1px 1px 2px rgba(100, 100, 100, 0.6)) saturate(0.3);
+  height: 70px;
+  filter: drop-shadow(1px 1px 2px rgba(100, 100, 100, 0.6));
 }
 
 .i-large,
