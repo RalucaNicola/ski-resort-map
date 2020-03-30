@@ -1,16 +1,34 @@
+
 define([], function () {
   const vertices = [];
   const random = new Math.seedrandom("mammoth");
+
+  function deviateCoord(min, max, count, index) {
+    debugger;
+    const step = (max - min) / count;
+    const coord = min + index * step;
+    if (0 < index && index < count) {
+      const dev = step * 0.9;
+      return coord - dev / 2 + random() * dev;
+    } else {
+      return coord;
+    }
+  }
+
   return {
     getRandomPointsAsFlatVertexArray(xmin, xmax, ymin, ymax, step) {
-      for (let x = xmin; x <= xmax; x += step) {
-        for (let y = ymin; y <= ymax; y += step) {
-          const deviance = step - 50;
-          const devianceX = -deviance + random() * deviance;
-          const devianceY = -deviance + random() * deviance;
-          vertices.push(x + devianceX, y + devianceY);
+      const countX = Math.floor((xmax - xmin) / step);
+      const countY = Math.floor((ymax - ymin) / step);
+
+      const devX = deviateCoord.bind(this, xmin, xmax, countX);
+      const devY = deviateCoord.bind(this, ymin, ymax, countY);
+
+      for (let x = 0; x <= countX; x++) {
+        for (let y = 0; y <= countY; y++) {
+          vertices.push(devX(x), devY(y));
         }
       }
+
       return vertices;
     },
     setZValues(layer, sampler, index) {

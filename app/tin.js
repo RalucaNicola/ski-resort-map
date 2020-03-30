@@ -38,43 +38,6 @@ define([
     url: "https://elevation3d.arcgis.com/arcgis/rest/services/WorldElevation3D/Terrain3D/ImageServer"
   });
 
-  // add the boundary points
-  vertices.push(xmin, ymin, xmin, ymax, xmax, ymin, xmax, ymax);
-
-  function generateBorderVertices(number) {
-    const dif = 148;
-    let borderVertices = [
-      [xmin - dif, ymin - dif],
-      [xmin - dif, ymax + dif],
-      [xmax + dif, ymax + dif],
-      [xmax + dif, ymin - dif]
-    ];
-    for (let i = 1; i < number; i++) {
-      const newVertices = [];
-      for (let j = 0; j < borderVertices.length; j++) {
-        const vertex1 = borderVertices[j];
-        newVertices.push(vertex1);
-        if (j === borderVertices.length - 1) {
-          const vertex2 = borderVertices[0];
-          const midVertex = [(vertex1[0] + vertex2[0]) / 2, (vertex1[1] + vertex2[1]) / 2];
-          newVertices.push(midVertex);
-          borderVertices = newVertices;
-          j = borderVertices.length;
-        } else {
-          const vertex2 = borderVertices[j + 1];
-          const midVertex = [(vertex1[0] + vertex2[0]) / 2, (vertex1[1] + vertex2[1]) / 2];
-          newVertices.push(midVertex);
-        }
-      }
-    }
-    const borderVerticesFlatArray = [].concat.apply([], borderVertices);
-
-    return borderVerticesFlatArray;
-  }
-
-  const borderVerts = generateBorderVertices(15);
-
-  vertices = vertices.concat(borderVerts);
   vertices.push(xmin - dif, ymin - dif, xmin - dif, ymax + dif, xmax + dif, ymin - dif, xmax + dif, ymax + dif);
 
   const delaunay = new Delaunator(vertices);
@@ -86,10 +49,10 @@ define([
         .then(function (verticesZ) {
           const length = verticesZ.length;
 
-          verticesZ[length - 4][2] = 4000;
-          verticesZ[length - 3][2] = 4000;
-          verticesZ[length - 2][2] = 4000;
-          verticesZ[length - 1][2] = 4000;
+          verticesZ[length - 4] = [xmin, ymin, 4000];
+          verticesZ[length - 3] = [xmin, ymax, 4000];
+          verticesZ[length - 2] = [xmax, ymin, 4000];
+          verticesZ[length - 1] = [xmax, ymax, 4000];
 
           const color = verticesZ.map(function (vertex) {
             return getColorFromHeight(vertex[2]);
@@ -116,10 +79,6 @@ define([
             spatialReference: SpatialReference.WebMercator
           });
           return mesh;
-
-          // meshUtils.createElevationSampler(mesh).then(function(sampler) {
-          //   setZValues(treesLayer, sampler, 0);
-          // });
         })
         .catch(console.error);
     }
