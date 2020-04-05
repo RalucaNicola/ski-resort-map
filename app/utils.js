@@ -4,7 +4,6 @@ define([], function () {
   const random = new Math.seedrandom("mammoth");
 
   function deviateCoord(min, max, count, index) {
-    debugger;
     const step = (max - min) / count;
     const coord = min + index * step;
     if (0 < index && index < count) {
