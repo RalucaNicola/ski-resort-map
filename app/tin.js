@@ -129,8 +129,8 @@ define([
 
     const stops = [
       { value: 4000, color: new Color("#fff") },
-      { value: 5000, color: new Color("#d9f7ff") },
-      { value: 5700, color: new Color("#dbe7ff") }
+      { value: 5000, color: new Color("#d1eeff") },
+      { value: 6500, color: new Color("#dbe7ff") }
     ];
     for (let i = 0; i < stops.length; i++) {
       const stop = stops[i];

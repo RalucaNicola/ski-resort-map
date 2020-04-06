@@ -1,7 +1,7 @@
 define([], function () {
 
   const waterLabelColor = "rgb(72, 140, 153)";
-  const waterColor = "rgb(237, 254, 255)";
+  const waterColor = "rgb(128, 227, 255)";
 
   const darkGray = "rgb(50, 50, 50)";
   const gray = "rgb(100, 100, 100)";

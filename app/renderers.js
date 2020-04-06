@@ -574,19 +574,6 @@ define([
         field: "name",
         uniqueValueInfos: [
           {
-            value: "skier",
-            symbol: {
-              type: "point-3d",
-              symbolLayers: [
-                {
-                  type: "object",
-                  resource: { href: "./assets/skier/model.gltf" },
-                  tilt: 60
-                }
-              ]
-            }
-          },
-          {
             value: "chalet",
             symbol: {
               type: "point-3d",

@@ -5,8 +5,6 @@ define([
     appId: "iLylggsE3toQeCGV",
     portalUrl: "https://jsapi.maps.arcgis.com/",
     terrain: {
-      minHeight: 0,
-      maxHeight: 4000,
       exaggerationFactor: 2,
     },
     extent: {

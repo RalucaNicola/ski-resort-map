@@ -38,6 +38,10 @@ button:hover {
   margin-bottom: 0;
 }
 
+.legend-label {
+  font-weight: bold;
+}
+
 canvas {
   filter: opacity(0);
   transition: filter 1s;
