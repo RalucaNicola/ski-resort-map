@@ -27,10 +27,6 @@ define([
   const xmax = config.extent.xmax;
   const ymax = config.extent.ymax;
 
-  let minHeight = config.terrain.minHeight;
-  let maxHeight = config.terrain.maxHeight;
-
-
   let vertices = utils.getRandomPointsAsFlatVertexArray(xmin, xmax, ymin, ymax, 200);
 
   const elevationLayer = new ElevationLayer({
@@ -52,7 +48,7 @@ define([
             material: new MeshMaterialMetallicRoughness({
               metallic: 0.5,
               roughness: 0.8,
-              doubleSided: false,
+              doubleSided: false
             })
           });
 
@@ -76,20 +72,22 @@ define([
             wallTriangles.push(vIdx2, vIdx3, vIdx1, vIdx4, vIdx3, vIdx2);
           }
 
-          const color = verticesZ.map(function (vertex) {
-            return getColorFromHeight(vertex[2]);
+          const vertexColor = verticesZ.map(function (vertex) {
+            const color = getColorFromHeight(vertex[2]);
+            return [color.r, color.g, color.b, 255];
           });
 
           const flatPosition = [].concat.apply([], verticesZ);
-          const flatColor = [].concat.apply([], color);
+          const flatColor = [].concat.apply([], vertexColor);
 
           const wall = new MeshComponent({
             faces: wallTriangles,
             shading: "flat",
             material: new MeshMaterialMetallicRoughness({
+              emissiveColor: "#2f5870",
               metallic: 0.5,
               roughness: 0.8,
-              doubleSided: false,
+              doubleSided: false
             })
           });
 
@@ -121,22 +119,34 @@ define([
       .then(function (result) {
         return result.geometry.points.map(function (p) {
           const z = p[2] * config.terrain.exaggerationFactor;
-          if (minHeight > z) {
-            minHeight = z;
-          }
-          if (maxHeight < z) {
-            maxHeight = z;
-          }
           return [p[0], p[1], z];
         });
       })
       .catch(console.error);
   }
 
-  function getColorFromHeight(height) {
-    const startColor = new Color("#bfeaff");
-    const endColor = new Color("#dbe9ff");
-    let color = Color.blendColors(startColor, endColor, (height - minHeight) / (maxHeight - minHeight));
-    return [color.r, color.g, color.b, 255];
+  function getColorFromHeight(value) {
+
+    const stops = [
+      { value: 4000, color: new Color("#fff") },
+      { value: 5000, color: new Color("#d9f7ff") },
+      { value: 5700, color: new Color("#dbe7ff") }
+    ];
+    for (let i = 0; i < stops.length; i++) {
+      const stop = stops[i];
+
+      if (value < stop.value) {
+        if (i === 0) {
+          return stop.color;
+        }
+
+        const prev = stops[i - 1];
+
+        const weight = (value - prev.value) / (stop.value - prev.value);
+        return Color.blendColors(prev.color, stop.color, weight);
+      }
+    }
+
+    return stops[stops.length - 1].color;
   }
 });

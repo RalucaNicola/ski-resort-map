@@ -5,7 +5,7 @@ body,
   margin: 0;
   height: 100%;
   width: 100%;
-  background: linear-gradient(0deg, rgba(249, 249, 249, 1) 25%, rgba(207, 235, 240, 1) 75%);
+  background: linear-gradient(0deg, #f9f9f9 25%, #e2faff 75%);
   font-family: "Avenir Next W00","Helvetica Neue",Helvetica,Arial,sans-serif;
 }
 
