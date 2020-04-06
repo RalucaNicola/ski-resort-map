@@ -27,55 +27,15 @@ define([
   const xmax = config.extent.xmax;
   const ymax = config.extent.ymax;
 
-  const dif = 150;
-
   let minHeight = config.terrain.minHeight;
   let maxHeight = config.terrain.maxHeight;
+
 
   let vertices = utils.getRandomPointsAsFlatVertexArray(xmin, xmax, ymin, ymax, 200);
 
   const elevationLayer = new ElevationLayer({
     url: "https://elevation3d.arcgis.com/arcgis/rest/services/WorldElevation3D/Terrain3D/ImageServer"
   });
-
-  // add the boundary points
-  vertices.push(xmin, ymin, xmin, ymax, xmax, ymin, xmax, ymax);
-
-  function generateBorderVertices(number) {
-    const dif = 148;
-    let borderVertices = [
-      [xmin - dif, ymin - dif],
-      [xmin - dif, ymax + dif],
-      [xmax + dif, ymax + dif],
-      [xmax + dif, ymin - dif]
-    ];
-    for (let i = 1; i < number; i++) {
-      const newVertices = [];
-      for (let j = 0; j < borderVertices.length; j++) {
-        const vertex1 = borderVertices[j];
-        newVertices.push(vertex1);
-        if (j === borderVertices.length - 1) {
-          const vertex2 = borderVertices[0];
-          const midVertex = [(vertex1[0] + vertex2[0]) / 2, (vertex1[1] + vertex2[1]) / 2];
-          newVertices.push(midVertex);
-          borderVertices = newVertices;
-          j = borderVertices.length;
-        } else {
-          const vertex2 = borderVertices[j + 1];
-          const midVertex = [(vertex1[0] + vertex2[0]) / 2, (vertex1[1] + vertex2[1]) / 2];
-          newVertices.push(midVertex);
-        }
-      }
-    }
-    const borderVerticesFlatArray = [].concat.apply([], borderVertices);
-
-    return borderVerticesFlatArray;
-  }
-
-  const borderVerts = generateBorderVertices(15);
-
-  vertices = vertices.concat(borderVerts);
-  vertices.push(xmin - dif, ymin - dif, xmin - dif, ymax + dif, xmax + dif, ymin - dif, xmax + dif, ymax + dif);
 
   const delaunay = new Delaunator(vertices);
   const triangles = delaunay.triangles;
@@ -84,12 +44,37 @@ define([
     createGeometry: function () {
       return enhanceVerticesWithZValues(vertices)
         .then(function (verticesZ) {
-          const length = verticesZ.length;
 
-          verticesZ[length - 4][2] = 4000;
-          verticesZ[length - 3][2] = 4000;
-          verticesZ[length - 2][2] = 4000;
-          verticesZ[length - 1][2] = 4000;
+          // Mesh component for terrain
+          const terrain = new MeshComponent({
+            faces: triangles.reverse(),
+            shading: "flat",
+            material: new MeshMaterialMetallicRoughness({
+              metallic: 0.5,
+              roughness: 0.8,
+              doubleSided: false,
+            })
+          });
+
+          // Add another mesh component by duplicating the hull and placing it at 4000m
+          var hull = delaunay.hull;
+          var lengthWithoutWall = verticesZ.length;
+          var wallTriangles = [];
+
+          for (let i = 0; i < hull.length; i++) {
+            const vIdx1 = hull[i];
+            const vIdx2 = hull[(i + 1) % hull.length];
+
+            const vIdx3 = lengthWithoutWall + i;
+            const vIdx4 = lengthWithoutWall + (i + 1) % hull.length;
+
+            // Add new wall vertex
+            const bottomVertex = [].concat.apply([], verticesZ[vIdx1]);
+            bottomVertex[2] = 4000;
+            verticesZ.push(bottomVertex);
+
+            wallTriangles.push(vIdx2, vIdx3, vIdx1, vIdx4, vIdx3, vIdx2);
+          }
 
           const color = verticesZ.map(function (vertex) {
             return getColorFromHeight(vertex[2]);
@@ -98,17 +83,18 @@ define([
           const flatPosition = [].concat.apply([], verticesZ);
           const flatColor = [].concat.apply([], color);
 
-          const meshComponent = new MeshComponent({
-            faces: triangles,
+          const wall = new MeshComponent({
+            faces: wallTriangles,
             shading: "flat",
             material: new MeshMaterialMetallicRoughness({
               metallic: 0.5,
-              roughness: 0.8
+              roughness: 0.8,
+              doubleSided: false,
             })
           });
 
           const mesh = new Mesh({
-            components: [meshComponent],
+            components: [terrain, wall],
             vertexAttributes: {
               position: flatPosition,
               color: flatColor
@@ -116,10 +102,6 @@ define([
             spatialReference: SpatialReference.WebMercator
           });
           return mesh;
-
-          // meshUtils.createElevationSampler(mesh).then(function(sampler) {
-          //   setZValues(treesLayer, sampler, 0);
-          // });
         })
         .catch(console.error);
     }
