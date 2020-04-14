@@ -3,32 +3,28 @@ define([
   "esri/layers/support/LabelClass"
 ], function (style, LabelClass) {
 
+function getBackgroundCanvasURL(height, width) {
+  const canvas = document.createElement("canvas");
+  canvas.setAttribute("width", width.toString() + "px");
+  canvas.setAttribute("height", height.toString() + "px");
+  const ctx = canvas.getContext("2d");
+  ctx.fillStyle = style.pointsOfInterest.iconBackgroundColor;
+  ctx.fillRect(0, 0, width, height);
+  return canvas.toDataURL("image/png");
+}
+
   const hutSymbol = {
     type: "point-3d",
     symbolLayers: [
       {
         type: "icon",
         resource: {
-          primitive: "square"
+          href: getBackgroundCanvasURL(1, 3)
         },
-        material: { color: [255, 255, 255, 0] },
-        size: 30,
+        size: 60,
         anchor: "relative",
         anchorPosition: {
           x: 0,
-          y: 0
-        }
-      },
-      {
-        type: "icon",
-        resource: {
-          primitive: "square"
-        },
-        material: { color: style.pointsOfInterest.iconBackgroundColor },
-        size: 20,
-        anchor: "relative",
-        anchorPosition: {
-          x: 1,
           y: 0.4
         }
       },
@@ -48,19 +44,6 @@ define([
       {
         type: "icon",
         resource: {
-          primitive: "square"
-        },
-        material: { color: style.pointsOfInterest.iconBackgroundColor },
-        size: 20,
-        anchor: "relative",
-        anchorPosition: {
-          x: 0,
-          y: 0.4
-        }
-      },
-      {
-        type: "icon",
-        resource: {
           href: "https://static.arcgis.com/arcgis/styleItems/Icons/web/resource/Restaurant.svg"
         },
         material: { color: style.pointsOfInterest.color },
@@ -69,20 +52,6 @@ define([
         anchorPosition: {
           x: 0,
           y: 0.5
-        }
-      },
-
-      {
-        type: "icon",
-        resource: {
-          primitive: "square"
-        },
-        material: { color: style.pointsOfInterest.iconBackgroundColor },
-        size: 20,
-        anchor: "relative",
-        anchorPosition: {
-          x: -1,
-          y: 0.4
         }
       },
       {
@@ -116,26 +85,12 @@ define([
       {
         type: "icon",
         resource: {
-          primitive: "square"
+          href: getBackgroundCanvasURL(1, 2)
         },
-        material: { color: [255, 255, 255, 0] },
-        size: 30,
+        size: 40,
         anchor: "relative",
         anchorPosition: {
           x: 0,
-          y: 0
-        }
-      },
-      {
-        type: "icon",
-        resource: {
-          primitive: "square"
-        },
-        material: { color: style.pointsOfInterest.iconBackgroundColor },
-        size: 20,
-        anchor: "relative",
-        anchorPosition: {
-          x: 0.5,
           y: 0.4
         }
       },
@@ -150,19 +105,6 @@ define([
         anchorPosition: {
           x: 0.5,
           y: 0.5
-        }
-      },
-      {
-        type: "icon",
-        resource: {
-          primitive: "square"
-        },
-        material: { color: style.pointsOfInterest.iconBackgroundColor },
-        size: 20,
-        anchor: "relative",
-        anchorPosition: {
-          x: -0.5,
-          y: 0.4
         }
       },
       {
@@ -196,9 +138,8 @@ define([
       {
         type: "icon",
         resource: {
-          primitive: "square"
+          href: getBackgroundCanvasURL(1, 1)
         },
-        material: { color: style.pointsOfInterest.iconBackgroundColor },
         size: 20,
         anchor: "relative",
         anchorPosition: {
