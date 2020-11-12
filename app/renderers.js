@@ -19,18 +19,6 @@ function getBackgroundCanvasURL(height, width) {
       {
         type: "icon",
         resource: {
-          href: getBackgroundCanvasURL(1, 3)
-        },
-        size: 60,
-        anchor: "relative",
-        anchorPosition: {
-          x: 0,
-          y: 0.4
-        }
-      },
-      {
-        type: "icon",
-        resource: {
           href: "https://static.arcgis.com/arcgis/styleItems/Icons/web/resource/Hotel.svg"
         },
         material: { color: style.pointsOfInterest.color },
@@ -66,6 +54,18 @@ function getBackgroundCanvasURL(height, width) {
           x: -1,
           y: 0.5
         }
+      },
+      {
+        type: "icon",
+        resource: {
+          href: getBackgroundCanvasURL(1, 3)
+        },
+        size: 60,
+        anchor: "relative",
+        anchorPosition: {
+          x: 0,
+          y: 0.4
+        }
       }
     ],
     verticalOffset: {
@@ -82,18 +82,6 @@ function getBackgroundCanvasURL(height, width) {
   const restaurantSymbol = {
     type: "point-3d",
     symbolLayers: [
-      {
-        type: "icon",
-        resource: {
-          href: getBackgroundCanvasURL(1, 2)
-        },
-        size: 40,
-        anchor: "relative",
-        anchorPosition: {
-          x: 0,
-          y: 0.4
-        }
-      },
       {
         type: "icon",
         resource: {
@@ -119,6 +107,18 @@ function getBackgroundCanvasURL(height, width) {
           x: -0.5,
           y: 0.5
         }
+      },
+      {
+        type: "icon",
+        resource: {
+          href: getBackgroundCanvasURL(1, 2)
+        },
+        size: 40,
+        anchor: "relative",
+        anchorPosition: {
+          x: 0,
+          y: 0.4
+        }
       }
     ],
     verticalOffset: {
@@ -137,6 +137,17 @@ function getBackgroundCanvasURL(height, width) {
     symbolLayers: [
       {
         type: "icon",
+        resource: { href: "https://static.arcgis.com/arcgis/styleItems/Icons/web/resource/Coffee.svg" },
+        material: { color: style.pointsOfInterest.color },
+        size: 15,
+        anchor: "relative",
+        anchorPosition: {
+          x: 0,
+          y: 0.5
+        }
+      },
+      {
+        type: "icon",
         resource: {
           href: getBackgroundCanvasURL(1, 1)
         },
@@ -145,17 +156,6 @@ function getBackgroundCanvasURL(height, width) {
         anchorPosition: {
           x: 0,
           y: 0.4
-        }
-      },
-      {
-        type: "icon",
-        resource: { href: "https://static.arcgis.com/arcgis/styleItems/Icons/web/resource/Coffee.svg" },
-        material: { color: style.pointsOfInterest.color },
-        size: 15,
-        anchor: "relative",
-        anchorPosition: {
-          x: 0,
-          y: 0.5
         }
       }
     ],
